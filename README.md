@@ -1,7 +1,5 @@
 # Turtlebot3 DRL Navigation
 
-> Note: ROS 2 migration is a work in progress. `set_model_state` and training script still need to be adapted.
-
 This repository is a fork of [DRL-robot-navigation](https://github.com/reiniscimurs/DRL-robot-navigation) with modifications to run with the Turtlebot3 and its 2D lidar sensor. All the base behavior should be credited to the original author. The fork however changes the structure of the project so everything can be executed directly via ROS.
 
 ![Inference example](doc/model_test.gif)
@@ -10,7 +8,7 @@ This repository is a fork of [DRL-robot-navigation](https://github.com/reiniscim
 
 1. Clone the repository
     ```bash
-    git clone https://github.com/TannerGilbert/DRL-robot-navigation --recursive
+    git clone -b ros2 https://github.com/TannerGilbert/DRL-robot-navigation --recursive
     ```
 2. Install Python dependencies
     ```bash
@@ -18,7 +16,7 @@ This repository is a fork of [DRL-robot-navigation](https://github.com/reiniscim
     ```
 3. Build workspace
     ```bash
-    catkin build
+    colcon build --symlink-install
     ```
 
 ## Usage
@@ -28,8 +26,10 @@ This repository is a fork of [DRL-robot-navigation](https://github.com/reiniscim
 Training can be started via:
 
 ```bash
-roslaunch td3_rl train_td3.launch
+ros2 launch td3_rl train_td3.launch.py
 ```
+
+> Note: Training can be sped up by increasing the simulation speed in the Gazebo environment. This can be done by changing the `real_time_update_rate` in [`TD3.world`](src/TD3/worlds/TD3.world). For example setting it to `0` will make the simulation run as fast as possible.
 
 ![Gazebo environment](doc/environment.png)
 
@@ -50,7 +50,7 @@ $ tensorboard --logdir runs
 After training, the model can be tested with the following command:
 
 ```bash
-roslaunch td3_rl test_td3.launch
+ros2 launch td3_rl test_td3.launch.py
 ```
 
 The default behaviour for the inference script is to run indefinitetly until the robot crashes. If the environment should also be reset after a certain time `td3_params/max_ep` needs to be set to a positive value.

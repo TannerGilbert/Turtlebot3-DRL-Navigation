@@ -1,5 +1,3 @@
-import os
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -27,7 +25,7 @@ def generate_launch_description():
         # Start the TD3 training script with parameters loaded from YAML
         Node(
             package='td3_rl',
-            executable='train_td3.py',
+            executable='train_td3',
             name='td3_trainer',
             output='screen',
             parameters=[PathJoinSubstitution([td3_rl_path, 'config', 'td3_config.yaml'])],

@@ -1,4 +1,4 @@
-td3_params:
+td3_trainer:
   ros__parameters:
     use_sim_time: true
     seed: 42
@@ -20,4 +20,12 @@ td3_params:
     save_model: true
     load_model: false
     random_near_obstacle: true
+    environment_dim: 20
+
+td3_tester:
+  ros__parameters:
+    use_sim_time: true
+    seed: 42
+    max_ep: 250
+    file_name: "TD3_Turtlebot"
     environment_dim: 20

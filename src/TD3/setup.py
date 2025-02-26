@@ -27,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'test_td3 = td3_rl.test_td3:main',
+            'train_td3 = td3_rl.train_td3:main',
         ],
     },
 )

@@ -5,8 +5,8 @@ import time
 import numpy as np
 import rclpy
 import rclpy.logging
-from gazebo_msgs.msg import ModelState
-from geometry_msgs.msg import Twist
+from gazebo_msgs.srv import SetEntityState
+from geometry_msgs.msg import Pose, Twist
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
@@ -47,20 +47,17 @@ class GazeboEnv(Node):
         self.scan_data = np.ones(self.environment_dim) * self.max_distance
         self.last_odom = None
 
-        self.set_self_state = ModelState()
-        self.set_self_state.model_name = "turtlebot3_burger"
-
         # Set up the ROS publishers and subscribers
         self.vel_pub = self.create_publisher(Twist, "/cmd_vel", 1)
-        self.set_state_pub = self.create_publisher(ModelState, "gazebo/set_model_state", 10)
         self.goal_point_publisher = self.create_publisher(MarkerArray, "goal_point", 3)
         
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, "/odom", self.odom_callback, 10)
         
-        self.unpause = self.create_client(Empty, "/gazebo/unpause_physics")
-        self.pause = self.create_client(Empty, "/gazebo/pause_physics")
-        self.reset_proxy = self.create_client(Empty, "/gazebo/reset_world")
+        self.set_entity_state = self.create_client(SetEntityState, "/gazebo/set_entity_state")
+        self.unpause = self.create_client(Empty, "/unpause_physics")
+        self.pause = self.create_client(Empty, "/pause_physics")
+        self.reset_proxy = self.create_client(Empty, "/reset_world")
 
     def scan_callback(self, scan):
         mod = len(scan.ranges) // self.environment_dim
@@ -89,7 +86,6 @@ class GazeboEnv(Node):
         self.pause.call_async(Empty.Request())
 
         done, collision, min_laser = self.observe_collision(self.scan_data)
-        
         
         self.odom_x = self.last_odom.pose.pose.position.x
         self.odom_y = self.last_odom.pose.pose.position.y
@@ -141,9 +137,7 @@ class GazeboEnv(Node):
         # Resets the state of the environment and returns an initial observation.
         self.reset_proxy.call_async(Empty.Request())
 
-        angle = np.random.uniform(-np.pi, np.pi)
-        quaternion = Quaternion.from_euler(0.0, 0.0, angle)
-        object_state = self.set_self_state
+        angle = np.random.uniform(-np.pi, np.pi)        
 
         x = 0
         y = 0
@@ -152,17 +146,11 @@ class GazeboEnv(Node):
             x = np.random.uniform(-4.5, 4.5)
             y = np.random.uniform(-4.5, 4.5)
             position_ok = check_pos(x, y)
-        object_state.pose.position.x = x
-        object_state.pose.position.y = y
-        # object_state.pose.position.z = 0.
-        object_state.pose.orientation.x = quaternion.x
-        object_state.pose.orientation.y = quaternion.y
-        object_state.pose.orientation.z = quaternion.z
-        object_state.pose.orientation.w = quaternion.w
-        self.set_state_pub.publish(object_state)
+        
+        self.change_object_position("burger", x, y, angle)
 
-        self.odom_x = object_state.pose.position.x
-        self.odom_y = object_state.pose.position.y
+        self.odom_x = x
+        self.odom_y = y
 
         # set a random goal in empty space in environment
         self.change_goal()
@@ -203,6 +191,22 @@ class GazeboEnv(Node):
         robot_state = [distance, theta, 0.0, 0.0]
         state = np.append(self.scan_data, robot_state)
         return state
+    
+    def change_object_position(self, name, x, y, angle):
+        quaternion = Quaternion.from_euler(0.0, 0.0, angle)
+        pose = Pose()
+        pose.position.x = x
+        pose.position.y = y
+        pose.position.z = 0.0
+        pose.orientation.x = quaternion.x
+        pose.orientation.y = quaternion.y
+        pose.orientation.z = quaternion.z
+        pose.orientation.w = quaternion.w
+        
+        request = SetEntityState.Request()
+        request.state.name = name
+        request.state.pose = pose
+        self.set_entity_state.call_async(request)
 
     def change_goal(self):
         # Place a new goal and check if its location is not on one of the obstacles
@@ -234,16 +238,8 @@ class GazeboEnv(Node):
                 distance_to_goal = np.linalg.norm([x - self.goal_x, y - self.goal_y])
                 if distance_to_robot < 1.5 or distance_to_goal < 1.5:
                     box_ok = False
-            box_state = ModelState()
-            box_state.model_name = name
-            box_state.pose.position.x = x
-            box_state.pose.position.y = y
-            box_state.pose.position.z = 0.0
-            box_state.pose.orientation.x = 0.0
-            box_state.pose.orientation.y = 0.0
-            box_state.pose.orientation.z = 0.0
-            box_state.pose.orientation.w = 1.0
-            self.set_state_pub.publish(box_state)
+            
+            self.change_object_position(name, x, y, 0.0)
 
     def publish_markers(self, action):
         # Publish visual data in Rviz

@@ -40,17 +40,28 @@ class TD3:
         self.actor.load_state_dict(torch.load(os.path.join(directory, f"{filename}_actor.pth")))
 
 class TD3Tester(Node):
-    def __init__(self, env):
+    def __init__(self):
         super().__init__('td3_tester')
         self.get_logger().info("Initializing TD3 Tester Node")
 
         td3_rl_path = get_package_share_directory('td3_rl')
         models_path = os.path.join(td3_rl_path, "pytorch_models")
 
-        self.seed = self.declare_parameter("td3_params.seed", 0).value
-        self.max_ep = self.declare_parameter("td3_params.max_ep", -1).value
-        self.file_name = self.declare_parameter("td3_params.file_name", "TD3_Turtlebot").value
-        self.environment_dim = self.declare_parameter("td3_params.environment_dim", 20).value
+        self.seed = self.declare_parameter("seed", 0).value
+        self.max_ep = self.declare_parameter("max_ep", -1).value
+        self.file_name = self.declare_parameter("file_name", "TD3_Turtlebot").value
+        self.environment_dim = self.declare_parameter("environment_dim", 20).value
+        
+        self.print_parameters()
+        
+        # Create and spin GazeboEnv in a separate thread
+        env = GazeboEnv(environment_dim=self.environment_dim)
+        executor = MultiThreadedExecutor()
+        executor.add_node(env)
+
+        # Run the environment in a separate thread so that its subscriptions work
+        env_thread = threading.Thread(target=executor.spin, daemon=True)
+        env_thread.start()
 
         robot_dim = 4
         self.env = env  # Pass the already-running GazeboEnv instance
@@ -73,6 +84,11 @@ class TD3Tester(Node):
 
         self.run_model()
 
+    def print_parameters(self):
+        self.get_logger().info("Loaded Parameters:")
+        for param in self._parameters.keys():
+            self.get_logger().info(f"{param}: {self.get_parameter(param).value}")
+
     def run_model(self):
         while rclpy.ok():
             action = self.network.get_action(np.array(self.state))
@@ -91,26 +107,16 @@ class TD3Tester(Node):
                 self.state = next_state
                 self.episode_timesteps += 1
 
+
 def main(args=None):
     rclpy.init(args=args)
 
-    # Create and spin GazeboEnv in a separate thread
-    env = GazeboEnv(environment_dim=20)
-    executor = MultiThreadedExecutor()
-    executor.add_node(env)
-
-    # Run the environment in a separate thread so that its subscriptions work
-    env_thread = threading.Thread(target=executor.spin, daemon=True)
-    env_thread.start()
-
-    # Start TD3Tester, passing the running GazeboEnv
-    tester = TD3Tester(env)
+    tester = TD3Tester()
     rclpy.spin(tester)
 
-    # Cleanup
     tester.destroy_node()
-    env.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
