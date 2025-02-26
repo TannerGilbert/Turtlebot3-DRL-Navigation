@@ -1,5 +1,5 @@
 {
-  "name": "noetic desktop-full",
+  "name": "humble desktop-full",
   "dockerFile": "Dockerfile",
   "runArgs": [
     "--privileged",
@@ -12,5 +12,5 @@
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind"
   ],
-  "postCreateCommand": "bash -c 'if [ -f /workspace/requirements.txt ]; then pip3 install -r /workspace/requirements.txt; fi && source /opt/ros/noetic/setup.bash && rm -rf /workspace/build /workspace/devel /workspace/logs /workspace/.catkin_tools && catkin build'"
+  "postCreateCommand": "bash -c 'if [ -f /workspace/requirements.txt ]; then pip3 install -r /workspace/requirements.txt; fi && source /opt/ros/humble/setup.bash && rm -rf /workspace/build /workspace/install /workspace/log /workspace/.colcon && colcon build'"
 }
