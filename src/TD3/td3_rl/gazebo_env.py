@@ -1,12 +1,14 @@
 import math
 import random
-import time
 
 import numpy as np
 import rclpy
 import rclpy.logging
-from gazebo_msgs.srv import SetEntityState
-from geometry_msgs.msg import Pose, Twist
+from geometry_msgs.msg import Twist
+from gz.msgs10.boolean_pb2 import Boolean
+from gz.msgs10.pose_pb2 import Pose
+from gz.msgs10.world_control_pb2 import WorldControl
+from gz.transport13 import Node as GzNode
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
@@ -34,6 +36,9 @@ def check_pos(x, y):
 class GazeboEnv(Node):
     def __init__(self, environment_dim):
         super().__init__('gazebo_env')
+        
+        self.gazebo_node = GzNode()
+        
         self.environment_dim = environment_dim
         self.odom_x = 0
         self.odom_y = 0
@@ -53,11 +58,6 @@ class GazeboEnv(Node):
         
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, "/odom", self.odom_callback, 10)
-        
-        self.set_entity_state = self.create_client(SetEntityState, "/gazebo/set_entity_state")
-        self.unpause = self.create_client(Empty, "/unpause_physics")
-        self.pause = self.create_client(Empty, "/pause_physics")
-        self.reset_proxy = self.create_client(Empty, "/reset_world")
 
     def scan_callback(self, scan):
         mod = len(scan.ranges) // self.environment_dim
@@ -81,9 +81,12 @@ class GazeboEnv(Node):
         self.vel_pub.publish(vel_cmd)
         self.publish_markers(action)
 
-        self.unpause.call_async(Empty.Request())
+        msg = WorldControl()
+        msg.pause = False
+        self.gazebo_node.request('/world/default/control', msg, WorldControl, Boolean, 1000)
         self.get_clock().sleep_for(rclpy.duration.Duration(seconds=TIME_DELTA))
-        self.pause.call_async(Empty.Request())
+        msg.pause = True
+        self.gazebo_node.request('/world/default/control', msg, WorldControl, Boolean, 1000)
 
         done, collision, min_laser = self.observe_collision(self.scan_data)
         
@@ -135,7 +138,11 @@ class GazeboEnv(Node):
 
     def reset(self):
         # Resets the state of the environment and returns an initial observation.
-        self.reset_proxy.call_async(Empty.Request())
+        # TODO: Fix problems with the reset function
+        msg = WorldControl()
+        msg.reset.model_only = True
+        #msg.reset.all = True
+        self.gazebo_node.request('/world/default/control', msg, WorldControl, Boolean, 1000)
 
         angle = np.random.uniform(-np.pi, np.pi)        
 
@@ -147,7 +154,7 @@ class GazeboEnv(Node):
             y = np.random.uniform(-4.5, 4.5)
             position_ok = check_pos(x, y)
         
-        self.change_object_position("burger", x, y, angle)
+        self.change_object_position("waffle", x, y, angle)
 
         self.odom_x = x
         self.odom_y = y
@@ -157,10 +164,13 @@ class GazeboEnv(Node):
         # randomly scatter boxes in the environment
         self.random_box()
         self.publish_markers([0.0, 0.0])
-
-        self.unpause.call_async(Empty.Request())
+        
+        msg = WorldControl()
+        msg.pause = False
+        self.gazebo_node.request('/world/default/control', msg, WorldControl, Boolean, 1000)
         self.get_clock().sleep_for(rclpy.duration.Duration(seconds=TIME_DELTA))
-        self.pause.call_async(Empty.Request())
+        msg.pause = True
+        self.gazebo_node.request('/world/default/control', msg, WorldControl, Boolean, 1000)
 
         distance = np.linalg.norm(
             [self.odom_x - self.goal_x, self.odom_y - self.goal_y]
@@ -195,6 +205,7 @@ class GazeboEnv(Node):
     def change_object_position(self, name, x, y, angle):
         quaternion = Quaternion.from_euler(0.0, 0.0, angle)
         pose = Pose()
+        pose.name = name
         pose.position.x = x
         pose.position.y = y
         pose.position.z = 0.0
@@ -203,10 +214,7 @@ class GazeboEnv(Node):
         pose.orientation.z = quaternion.z
         pose.orientation.w = quaternion.w
         
-        request = SetEntityState.Request()
-        request.state.name = name
-        request.state.pose = pose
-        self.set_entity_state.call_async(request)
+        self.gazebo_node.request('/world/default/set_pose', pose, Pose, Boolean, 1000)
 
     def change_goal(self):
         # Place a new goal and check if its location is not on one of the obstacles

@@ -12,7 +12,7 @@ Panels:
         - /LaserScan1
         - /TF1
       Splitter Ratio: 0.5
-    Tree Height: 2300
+    Tree Height: 270
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -132,8 +132,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.41277220845222473
-        Min Value: 0.009792318567633629
+        Max Value: 0.13199999928474426
+        Min Value: 0.13199999928474426
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -174,7 +174,19 @@ Visualization Manager:
           Value: true
         base_scan:
           Value: true
-        caster_back_link:
+        camera_depth_frame:
+          Value: true
+        camera_depth_optical_frame:
+          Value: true
+        camera_link:
+          Value: true
+        camera_rgb_frame:
+          Value: true
+        camera_rgb_optical_frame:
+          Value: true
+        caster_back_left_link:
+          Value: true
+        caster_back_right_link:
           Value: true
         imu_link:
           Value: true
@@ -195,7 +207,16 @@ Visualization Manager:
             base_link:
               base_scan:
                 {}
-              caster_back_link:
+              camera_link:
+                camera_depth_frame:
+                  camera_depth_optical_frame:
+                    {}
+                camera_rgb_frame:
+                  camera_rgb_optical_frame:
+                    {}
+              caster_back_left_link:
+                {}
+              caster_back_right_link:
                 {}
               imu_link:
                 {}
@@ -250,7 +271,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
+      Angle: -1.5749990940093994
       Class: rviz_default_plugins/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549

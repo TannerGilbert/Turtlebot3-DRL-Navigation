@@ -4,7 +4,8 @@
 	branch = humble
 [submodule "src/turtlebot3_simulations"]
 	path = src/turtlebot3_simulations
-	url = https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+	url = https://github.com/azeey/turtlebot3_simulations
+	branch = new_gazebo
 [submodule "src/turtlebot3_msgs"]
 	path = src/turtlebot3_msgs
 	url = https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git

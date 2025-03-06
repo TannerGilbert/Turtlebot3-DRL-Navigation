@@ -1,72 +1,36 @@
 <sdf version='1.6'>
   <world name='default'>
-    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
-      <ros>
-        <namespace>/gazebo</namespace>
-        <argument>model_states:=model_states_demo</argument>
-      </ros>
-      <update_rate>1.0</update_rate>
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
     </plugin>
-    <light name='sun' type='directional'>
-      <cast_shadows>1</cast_shadows>
-      <pose frame=''>0 0 10 0 -0 0</pose>
-      <diffuse>0.8 0.8 0.8 1</diffuse>
-      <specular>0.1 0.1 0.1 1</specular>
-      <attenuation>
-        <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
-      </attenuation>
-      <direction>-0.5 0.5 -1</direction>
-    </light>
-    <model name='ground_plane'>
-      <static>1</static>
-      <link name='link'>
-        <collision name='collision'>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>100</mu>
-                <mu2>50</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <cast_shadows>0</cast_shadows>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Grey</name>
-            </script>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin
+      filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+    <include>
+      <uri>
+        https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun
+      </uri>
+    </include>
+    <include>
+      <uri>
+        https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane
+      </uri>
+    </include>
     <gravity>0 0 -9.8</gravity>
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
@@ -76,8 +40,8 @@
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
     <scene>
-      <ambient>0.4 0.4 0.4 1</ambient>
-      <background>0.7 0.7 0.7 1</background>
+      <ambient>0.5 0.5 0.5 1</ambient>
+      <background>0.6 0.6 0.6 1</background>
       <shadows>1</shadows>
     </scene>
     <spherical_coordinates>
@@ -1352,44 +1316,12 @@
       <allow_auto_disable>1</allow_auto_disable>
       <pose frame=''>0.000564 -0.000118 0 0 -0 0</pose>
     </model>
-    <model name='fire_hydrant'>
-      <static>1</static>
-      <link name='link'>
-        <collision name='collision'>
-          <geometry>
-            <mesh>
-              <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <mesh>
-              <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
+    <include>
+    <static>1</static>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Fire hydrant</uri>
+      <name>fire_hydrant</name>
       <pose frame=''>-4.57173 4.55086 0 0 -0 0</pose>
-    </model>
+    </include>
     <model name='bookshelf'>
       <static>1</static>
       <link name='link'>
@@ -1853,230 +1785,26 @@
       </link>
       <pose frame=''>-4.34248 -0.532954 0 0 -0 0</pose>
     </model>
-    <model name='cardboard_box_0'>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Cardboard box</uri>
+      <name>cardboard_box_0</name>
       <pose frame=''>3.96847 0.977565 0.15 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>2</mass>
-          <inertia>
-            <ixx>0.0416667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.0566667</iyy>
-            <iyz>0</iyz>
-            <izz>0.0683333</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>0.5 0.4 0.3</size>
-            </box>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1</mu>
-                <mu2>1</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode>
-                <kp>1e+07</kp>
-                <kd>1</kd>
-                <min_depth>0.001</min_depth>
-                <max_vel>0.1</max_vel>
-              </ode>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <pose frame=''>0 0 -0.15 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://cardboard_box/meshes/cardboard_box.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
-    <model name='cardboard_box_1'>
+    </include>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Cardboard box</uri>
+      <name>cardboard_box_1</name>
       <pose frame=''>0.006438 -3.96264 0.15 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>2</mass>
-          <inertia>
-            <ixx>0.0416667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.0566667</iyy>
-            <iyz>0</iyz>
-            <izz>0.0683333</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>0.5 0.4 0.3</size>
-            </box>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1</mu>
-                <mu2>1</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode>
-                <kp>1e+07</kp>
-                <kd>1</kd>
-                <min_depth>0.001</min_depth>
-                <max_vel>0.1</max_vel>
-              </ode>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <pose frame=''>0 0 -0.15 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://cardboard_box/meshes/cardboard_box.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
-    <model name='cardboard_box_2'>
+    </include>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Cardboard box</uri>
+      <name>cardboard_box_2</name>
       <pose frame=''>-4.88373 2.96722 0.15 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>2</mass>
-          <inertia>
-            <ixx>0.0416667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.0566667</iyy>
-            <iyz>0</iyz>
-            <izz>0.0683333</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>0.5 0.4 0.3</size>
-            </box>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1</mu>
-                <mu2>1</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode>
-                <kp>1e+07</kp>
-                <kd>1</kd>
-                <min_depth>0.001</min_depth>
-                <max_vel>0.1</max_vel>
-              </ode>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <pose frame=''>0 0 -0.15 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://cardboard_box/meshes/cardboard_box.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
-    <model name='cardboard_box_3'>
+    </include>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Cardboard box</uri>
+      <name>cardboard_box_3</name>
       <pose frame=''>-0.0158 3.98725 0.15 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>2</mass>
-          <inertia>
-            <ixx>0.0416667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.0566667</iyy>
-            <iyz>0</iyz>
-            <izz>0.0683333</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>0.5 0.4 0.3</size>
-            </box>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1</mu>
-                <mu2>1</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode>
-                <kp>1e+07</kp>
-                <kd>1</kd>
-                <min_depth>0.001</min_depth>
-                <max_vel>0.1</max_vel>
-              </ode>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <pose frame=''>0 0 -0.15 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://cardboard_box/meshes/cardboard_box.dae</uri>
-              <scale>1 1 1</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
+    </include>
     <state world_name='default'>
       <sim_time>0 200000000</sim_time> <!-- 4045 200000000 -->
       <real_time>0 200000000</real_time> <!-- 4057 164900122 -->
@@ -2186,66 +1914,6 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='cardboard_box_0'>
-        <pose frame=''>3.96847 0.977565 0.149 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>3.96847 0.977565 0.149 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 -1.9e-05 0 0.000128 2e-06 0</acceleration>
-          <wrench>1e-06 -3.8e-05 1e-06 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='cardboard_box_1'>
-        <pose frame=''>0.006438 -3.96264 0.149 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0.006438 -3.96264 0.149 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 1.9e-05 0 -0.000128 -2e-06 0</acceleration>
-          <wrench>-1e-06 3.8e-05 -1e-06 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='cardboard_box_2'>
-        <pose frame=''>-4.88373 2.96722 0.149 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-4.88373 2.96722 0.149 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 -1.9e-05 0 0.000128 2e-06 0</acceleration>
-          <wrench>1e-06 -3.8e-05 1e-06 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='cardboard_box_3'>
-        <pose frame=''>-0.0158 3.98725 0.14951 2e-06 -2e-06 -0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-0.0158 3.98725 0.14951 2e-06 -2e-06 -0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 1.1e-05 0 -7.2e-05 1e-06 0</acceleration>
-          <wrench>0 2.2e-05 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='fire_hydrant'>
-        <pose frame=''>-4.57173 4.55086 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>-4.57173 4.55086 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='ground_plane'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
       <model name='table'>
         <pose frame=''>-4.34248 -0.532954 -9e-06 1e-06 -1e-06 0</pose>
         <scale>1 1 1</scale>
@@ -2256,9 +1924,6 @@
           <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
       </model>
-      <light name='sun'>
-        <pose frame=''>0 0 10 0 -0 0</pose>
-      </light>
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
